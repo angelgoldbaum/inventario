@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventarios</title>
+  <link rel="stylesheet" href="/css/app.css">
+  <style>
+    .inicio { max-width: 520px; margin: 10vh auto; padding: 0 16px; text-align: center; }
+    .inicio a { display: block; margin: 14px 0; padding: 22px; font-size: 18px; text-decoration: none; color: var(--text); }
+    .inicio a strong { display: block; font-size: 20px; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="inicio">
+    <h1>Sistema de Inventarios</h1>
+    <a class="tarjeta" id="lnk-m" href="/m/"><strong>📱 Contar (celular)</strong><span class="muted">Escanear y capturar cantidades</span></a>
+    <a class="tarjeta" href="/pc/"><strong>🖥️ Panel de revisión (PC)</strong><span class="muted">Stock teórico, concentrado, revisión y reportes</span></a>
+  </div>
+  <script>
+    // En celular, la cámara requiere HTTPS: redirige al puerto seguro
+    const m = document.getElementById('lnk-m');
+    (async () => {
+      if (location.protocol === 'http:' && !['localhost', '127.0.0.1'].includes(location.hostname)) {
+        let puerto = 3443;
+        try { puerto = (await (await fetch('/info.json')).json()).https_port; } catch { /* usa el predeterminado */ }
+        m.href = `https://${location.hostname}:${puerto}/m/`;
+      }
+      if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) && location.search !== '?menu') location.replace(m.href);
+    })();
+  </script>
+</body>
+</html>

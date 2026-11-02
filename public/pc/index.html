@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Revisión de inventarios</title>
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/pc/pc.css">
+</head>
+<body>
+  <section id="v-login" class="login oculto">
+    <h1>Panel de inventarios</h1>
+    <p class="muted">Acceso para auditores y administradores</p>
+    <form id="f-login">
+      <label>Usuario</label><input name="usuario" autocomplete="username" required>
+      <label>Contraseña</label><input name="password" type="password" autocomplete="current-password" required>
+      <button class="primario" type="submit">Entrar</button>
+      <div class="error" id="login-error"></div>
+    </form>
+  </section>
+
+  <section id="v-app" class="oculto">
+    <header class="cabecera">
+      <strong id="h-empresa">Inventarios</strong>
+      <select id="sel-inventario" title="Inventario en revisión"></select>
+      <span id="h-estado" class="etiqueta"></span>
+      <nav class="pestanas" id="pestanas">
+        <button data-tab="inventarios">Inventarios y stock</button>
+        <button data-tab="conteos">Conteos</button>
+        <button data-tab="revision">Revisión</button>
+        <button data-tab="reportes">Reportes</button>
+        <button data-tab="usuarios">Usuarios y dispositivos</button>
+        <button data-tab="bitacora">Bitácora</button>
+      </nav>
+      <span class="espacio"></span>
+      <span class="muted" id="h-usuario"></span>
+      <button class="chico" id="b-pass">Contraseña</button>
+      <button class="chico" id="b-salir">Salir</button>
+    </header>
+
+    <!-- INVENTARIOS Y STOCK -->
+    <main id="tab-inventarios" class="tab oculto">
+      <div class="rejilla-2">
+        <div class="tarjeta">
+          <h2>Cargar stock teórico</h2>
+          <p class="muted">Archivo Excel (.xlsx/.xls) o CSV con las columnas <b>CODIGO, DESCRIPCION, PRECIO VTA, COSTO, CANTIDAD</b>.
+            Opcionales: CATEGORIA, UBICACION, CODIGO BARRAS (uno o varios códigos alternos separados por coma).</p>
+          <form id="f-stock">
+            <label>Inventario destino</label>
+            <div id="stock-destino" class="destino"></div>
+            <label>Archivo</label>
+            <input type="file" name="archivo" accept=".xlsx,.xls,.csv,.txt" required>
+            <label>Modo</label>
+            <select name="modo">
+              <option value="reemplazar">Reemplazar todo el stock teórico</option>
+              <option value="actualizar">Agregar / actualizar artículos (conserva los demás)</option>
+            </select>
+            <div class="fila" style="margin-top:14px">
+              <button class="primario" type="submit">Cargar</button>
+              <button type="button" id="b-plantilla">Descargar plantilla</button>
+            </div>
+          </form>
+          <div id="stock-resultado"></div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila"><h2>Inventarios</h2><span class="espacio"></span><button id="b-nuevo-inv" class="primario">+ Nuevo inventario</button></div>
+          <p class="muted">El inventario <b>activo</b> es el que reciben los celulares. Un inventario cerrado ya no acepta cambios.</p>
+          <table class="tabla"><thead><tr><th>Nombre</th><th>Estado</th><th class="n">Artículos</th><th class="n">Conteos</th><th>Stock cargado</th><th></th></tr></thead>
+            <tbody id="inv-lista"></tbody></table>
+        </div>
+      </div>
+    </main>
+
+    <!-- CONTEOS (concentrado) -->
+    <main id="tab-conteos" class="tab oculto">
+      <div class="barra-herr">
+        <input id="c-buscar" placeholder="Buscar código o descripción" type="search">
+        <select id="c-usuario"><option value="">Todos los contadores</option></select>
+        <select id="c-dispositivo"><option value="">Todos los dispositivos</option></select>
+        <label class="check"><input type="checkbox" id="c-eliminados"> Ver eliminados</label>
+        <label class="check"><input type="checkbox" id="c-auto" checked> Actualizar automáticamente</label>
+        <span class="espacio"></span>
+        <span class="muted" id="c-resumen"></span>
+        <button id="c-agregar" class="primario">+ Agregar conteo</button>
+        <button id="c-excel">Excel</button>
+      </div>
+      <div class="tabla-caja">
+        <table class="tabla" id="t-conteos">
+          <thead><tr><th>#</th><th>Fecha / hora</th><th>Código</th><th>Descripción</th><th class="n">Cantidad</th><th>Contador</th><th>Dispositivo</th><th>Origen</th><th>Modificado</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="paginacion" id="c-pag"></div>
+    </main>
+
+    <!-- REVISIÓN -->
+    <main id="tab-revision" class="tab oculto">
+      <div class="kpis" id="r-kpis"></div>
+      <div class="barra-herr">
+        <input id="r-buscar" placeholder="Buscar código o descripción" type="search">
+        <select id="r-estado">
+          <option value="dif">Con diferencia</option>
+          <option value="">Todos</option>
+          <option value="faltante">Faltantes</option>
+          <option value="sobrante">Sobrantes</option>
+          <option value="ok">Sin diferencia</option>
+          <option value="sin_contar">Sin contar</option>
+          <option value="contados">Contados</option>
+          <option value="no_catalogado">No catalogados</option>
+          <option value="corregidos">Con corrección</option>
+        </select>
+        <select id="r-categoria"><option value="">Todas las categorías</option></select>
+        <button id="r-limpiar">Limpiar filtros</button>
+        <label class="check"><input type="checkbox" id="r-auto"> Actualizar cada 15 s</label>
+        <span class="espacio"></span>
+        <button id="r-refrescar">↻ Actualizar</button>
+        <button id="r-ticket" class="primario">🖨 Ticket 80mm (vista actual)</button>
+        <button id="r-excel">Excel</button>
+      </div>
+      <div class="ayuda muted">Filtros por columna: texto = contiene; números admiten <code>&gt;5</code>, <code>&lt;0</code>, <code>=0</code>, <code>!=0</code>, <code>10..20</code>. Clic en el encabezado para ordenar (Shift+clic: orden secundario). En <b>Corrección</b> escriba la cantidad correcta y presione Enter (vacío = quitar).</div>
+      <div class="tabla-caja">
+        <table class="tabla" id="t-revision">
+          <thead></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div class="paginacion" id="r-pag"></div>
+    </main>
+
+    <!-- REPORTES -->
+    <main id="tab-reportes" class="tab oculto">
+      <div class="tarjeta" style="margin-bottom:12px">
+        <div class="fila">
+          <label class="check"><input type="radio" name="rep-alcance" value="todo" checked> Todos los artículos</label>
+          <label class="check"><input type="radio" name="rep-alcance" value="vista"> Sólo la vista filtrada de Revisión</label>
+          <span class="espacio"></span>
+          <span class="muted" id="rep-info"></span>
+        </div>
+      </div>
+      <div class="rejilla-rep" id="rep-lista"></div>
+      <h3 style="margin-top:24px">Exportar a Excel</h3>
+      <div class="fila">
+        <button data-exp="revision">Revisión completa</button>
+        <button data-exp="ajuste">Archivo de ajuste (para el sistema)</button>
+        <button data-exp="conteos">Detalle de conteos</button>
+      </div>
+    </main>
+
+    <!-- USUARIOS -->
+    <main id="tab-usuarios" class="tab oculto">
+      <div class="rejilla-2">
+        <div class="tarjeta">
+          <div class="fila"><h2>Usuarios</h2><span class="espacio"></span><button id="b-nuevo-usuario" class="primario">+ Nuevo usuario</button></div>
+          <table class="tabla"><thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th><th></th></tr></thead><tbody id="u-lista"></tbody></table>
+          <div id="cfg-empresa" class="fila" style="margin-top:20px">
+            <label style="margin:0">Nombre de la empresa (encabezado de reportes)</label>
+            <input id="i-empresa" style="flex:1">
+            <button id="b-empresa">Guardar</button>
+          </div>
+        </div>
+        <div class="tarjeta">
+          <div class="fila"><h2>Dispositivos conectados</h2><span class="espacio"></span><button id="b-disp-ref" class="chico">↻</button></div>
+          <p class="muted">Sesiones con actividad en los últimos 2 días.</p>
+          <table class="tabla"><thead><tr><th>Dispositivo</th><th>Usuario</th><th>Tipo</th><th>IP</th><th>Última actividad</th><th class="n">Conteos</th><th></th></tr></thead><tbody id="d-lista"></tbody></table>
+        </div>
+      </div>
+    </main>
+
+    <!-- BITÁCORA -->
+    <main id="tab-bitacora" class="tab oculto">
+      <div class="barra-herr"><input id="b-buscar" type="search" placeholder="Filtrar bitácora"><button id="b-bit-ref">↻ Actualizar</button></div>
+      <div class="tabla-caja"><table class="tabla"><thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Referencia</th><th>Detalle</th></tr></thead><tbody id="bit-lista"></tbody></table></div>
+    </main>
+  </section>
+
+  <script src="/js/api.js"></script>
+  <script src="/pc/reportes.js"></script>
+  <script src="/pc/pc.js"></script>
+</body>
+</html>

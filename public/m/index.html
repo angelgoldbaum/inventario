@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#1f6feb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Conteo de inventario</title>
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/m/movil.css">
+</head>
+<body>
+  <!-- Acceso -->
+  <section id="v-login" class="login oculto">
+    <h1>Conteo de inventario</h1>
+    <p class="muted">Identifíquese para comenzar a contar</p>
+    <form id="f-login" autocomplete="on">
+      <label>Usuario</label>
+      <input name="usuario" autocapitalize="none" autocomplete="username" required>
+      <label>Contraseña</label>
+      <input name="password" type="password" autocomplete="current-password" required>
+      <label>Nombre de este dispositivo</label>
+      <input name="dispositivo" placeholder="Ej. Celular 1" required>
+      <button class="primario" type="submit">Entrar</button>
+      <div class="error" id="login-error"></div>
+    </form>
+  </section>
+
+  <!-- App -->
+  <section id="v-app" class="oculto">
+    <header class="barra">
+      <div>
+        <div class="titulo" id="h-inventario">—</div>
+        <div class="sub" id="h-usuario"></div>
+      </div>
+      <span class="espacio"></span>
+      <span id="h-pendientes" class="etiqueta e-sobrante oculto"></span>
+      <button id="b-menu" class="icono" aria-label="Menú">☰</button>
+    </header>
+    <nav id="menu" class="menu oculto">
+      <button data-ir="captura">📷 Capturar</button>
+      <button data-ir="mios">📋 Mis conteos</button>
+      <label class="opcion"><input type="checkbox" id="op-rapido"> Modo rápido (cada lectura = 1 pza)</label>
+      <label class="opcion"><input type="checkbox" id="op-sonido" checked> Sonido / vibración</label>
+      <button id="b-salir" class="peligro">Cerrar sesión</button>
+    </nav>
+
+    <main id="p-captura">
+      <div id="lector-caja">
+        <div id="lector"></div>
+        <div id="lector-off" class="lector-off">
+          <button id="b-camara" class="primario grande">📷 Activar cámara</button>
+          <div class="muted" id="camara-msg"></div>
+        </div>
+      </div>
+      <div class="fila manual">
+        <input id="i-codigo" placeholder="Código / SKU o descripción" autocomplete="off" inputmode="search" enterkeyhint="search">
+        <button id="b-buscar" class="primario">OK</button>
+      </div>
+      <ul id="sugerencias" class="sugerencias oculto"></ul>
+      <div id="ultimo" class="ultimo oculto"></div>
+      <div class="fila" style="margin-top:10px">
+        <button id="b-camara-off" class="oculto">Apagar cámara</button>
+      </div>
+    </main>
+
+    <main id="p-mios" class="oculto">
+      <div class="totales" id="mios-totales"></div>
+      <ul id="mios-lista" class="lista"></ul>
+    </main>
+  </section>
+
+  <!-- Teclado numérico -->
+  <div id="teclado" class="teclado-fondo oculto">
+    <div class="teclado">
+      <div class="art">
+        <div class="art-codigo" id="t-codigo"></div>
+        <div class="art-desc" id="t-desc"></div>
+      </div>
+      <div class="pantalla"><span id="t-valor"></span><span class="cursor"></span></div>
+      <div class="teclas">
+        <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+        <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+        <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+        <button data-k=".">.</button><button data-k="0">0</button><button data-k="del" class="tec-borrar">⌫</button>
+      </div>
+      <div class="teclas-acciones">
+        <button id="t-cancelar">Cancelar</button>
+        <button id="t-guardar" class="primario">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/vendor/html5-qrcode.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/m/movil.js"></script>
+</body>
+</html>

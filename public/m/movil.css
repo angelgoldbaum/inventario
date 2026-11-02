@@ -1,0 +1,58 @@
+body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+.barra { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--primary); color: #fff; }
+.barra .titulo { font-weight: 700; font-size: 16px; }
+.barra .sub { font-size: 12px; opacity: .85; }
+.barra .icono { background: transparent; border: 0; color: #fff; font-size: 24px; padding: 2px 8px; }
+.menu { position: sticky; top: 56px; z-index: 19; background: #fff; border-bottom: 1px solid var(--border); padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 6px 12px rgba(0,0,0,.08); }
+.menu button { text-align: left; padding: 12px; }
+.menu .opcion { display: flex; align-items: center; gap: 10px; color: var(--text); font-size: 15px; margin: 4px 0; padding: 6px 4px; }
+.menu .opcion input { width: 20px; height: 20px; }
+
+main { padding: 12px; }
+#lector-caja { position: relative; background: #111; border-radius: 12px; overflow: hidden; min-height: 200px; }
+#lector { width: 100%; }
+#lector video { width: 100% !important; display: block; }
+.lector-off { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; padding: 16px; text-align: center; color: #ccd; }
+button.grande { padding: 16px 24px; font-size: 18px; border-radius: 12px; }
+.manual { margin-top: 12px; flex-wrap: nowrap; }
+.manual input { flex: 1; font-size: 18px; padding: 12px; min-width: 0; }
+.manual button { padding: 12px 18px; font-size: 18px; }
+.sugerencias { list-style: none; margin: 6px 0 0; padding: 0; background: #fff; border: 1px solid var(--border); border-radius: 10px; max-height: 45vh; overflow: auto; }
+.sugerencias li { padding: 12px; border-bottom: 1px solid var(--border); }
+.sugerencias li:last-child { border-bottom: 0; }
+.sugerencias li b { display: block; font-size: 13px; color: var(--muted); }
+.ultimo { margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--ok-bg); border: 1px solid #b7e1c1; }
+.ultimo.no-cat { background: var(--warn-bg); border-color: #f0d199; }
+.ultimo .cant { font-size: 22px; font-weight: 700; float: right; }
+
+/* Teclado numérico */
+.teclado-fondo { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 100; display: flex; align-items: flex-end; }
+.teclado { background: #fff; width: 100%; border-radius: 18px 18px 0 0; padding: 14px 14px calc(14px + env(safe-area-inset-bottom)); max-width: 520px; margin: 0 auto; }
+.art { margin-bottom: 8px; }
+.art-codigo { font-size: 13px; color: var(--muted); font-family: ui-monospace, monospace; }
+.art-desc { font-size: 18px; font-weight: 700; line-height: 1.25; }
+.art-desc.no-cat { color: var(--warn); }
+.pantalla { font-size: 40px; font-weight: 700; text-align: right; padding: 6px 14px; border: 2px solid var(--primary); border-radius: 12px; margin: 8px 0 10px; min-height: 64px; font-variant-numeric: tabular-nums; }
+.pantalla #t-valor:empty::before { content: attr(data-ph); color: #b8c0c8; }
+.cursor { display: inline-block; width: 2px; height: 36px; background: var(--primary); margin-left: 3px; vertical-align: -4px; animation: parpadeo 1s steps(1) infinite; }
+@keyframes parpadeo { 50% { opacity: 0; } }
+.teclas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.teclas button { font-size: 28px; font-weight: 600; padding: 14px 0; border-radius: 12px; background: #f1f4f7; border: 0; touch-action: manipulation; }
+.teclas button:active { background: #d8e2ee; }
+.tec-borrar { color: var(--bad); }
+.teclas-acciones { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 10px; }
+.teclas-acciones button { padding: 16px; font-size: 18px; border-radius: 12px; font-weight: 700; touch-action: manipulation; }
+
+/* Mis conteos */
+.totales { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.totales div { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 8px; text-align: center; }
+.totales b { display: block; font-size: 20px; }
+.totales span { font-size: 12px; color: var(--muted); }
+.lista { list-style: none; margin: 0; padding: 0; }
+.lista li { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: center; }
+.lista .info { flex: 1; min-width: 0; }
+.lista .desc { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lista .meta { font-size: 12px; color: var(--muted); }
+.lista .cant { font-size: 22px; font-weight: 700; min-width: 50px; text-align: right; }
+.lista li.pend { border-style: dashed; opacity: .8; }
+#toasts { top: 70px; bottom: auto; }

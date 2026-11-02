@@ -1,0 +1,23 @@
+{
+  "name": "inventario-conteo",
+  "version": "1.0.0",
+  "description": "Captura, revisión y validación de inventarios físicos",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --no-warnings server.js",
+    "dev": "node --no-warnings --watch server.js"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^5.3.0",
+    "html5-qrcode": "^2.3.8",
+    "multer": "^2.5.0",
+    "selfsigned": "^2.4.1",
+    "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "private": true
+}

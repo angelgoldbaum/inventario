@@ -1,0 +1,55 @@
+body { font-size: 14px; }
+.cabecera { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #fff; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.cabecera select { max-width: 260px; }
+.pestanas { display: flex; gap: 2px; margin-left: 12px; flex-wrap: wrap; }
+.pestanas button { border: 0; background: transparent; border-radius: 6px; padding: 8px 12px; color: var(--muted); font-weight: 600; }
+.pestanas button.activa { background: var(--info-bg); color: var(--primary-d); }
+.tab { padding: 16px; }
+h2 { font-size: 17px; margin: 0 0 8px; }
+.rejilla-2 { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.4fr); gap: 16px; align-items: start; }
+@media (max-width: 1000px) { .rejilla-2 { grid-template-columns: 1fr; } }
+.destino { font-weight: 700; padding: 6px 0; }
+.barra-herr { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.barra-herr input[type=search] { width: 260px; }
+.check { display: inline-flex; align-items: center; gap: 6px; margin: 0; color: var(--text); font-size: 14px; }
+.ayuda { font-size: 12px; margin: -2px 0 8px; }
+code { background: #eef1f4; padding: 0 4px; border-radius: 4px; }
+
+.tabla-caja { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow: auto; max-height: calc(100vh - 250px); }
+.tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tabla th, .tabla td { padding: 6px 8px; border-bottom: 1px solid #edf0f3; text-align: left; white-space: nowrap; }
+.tabla td.desc { white-space: normal; min-width: 220px; max-width: 420px; }
+.tabla thead th { position: sticky; top: 0; background: #f7f9fb; z-index: 2; font-size: 12px; color: #445; user-select: none; }
+.tabla thead tr.filtros th { top: 31px; padding: 4px; }
+.tabla thead tr.filtros input { width: 100%; min-width: 50px; padding: 3px 6px; font-size: 12px; border-radius: 5px; }
+.tabla th.ord { cursor: pointer; }
+.tabla th.ord:hover { color: var(--primary); }
+.tabla th .flecha { font-size: 10px; color: var(--primary); }
+.tabla .n { text-align: right; font-variant-numeric: tabular-nums; }
+.tabla tbody tr:hover { background: #f6f9ff; }
+.tabla tfoot td { position: sticky; bottom: 0; background: #f7f9fb; font-weight: 700; border-top: 2px solid var(--border); }
+.tabla tr.eliminado td { text-decoration: line-through; color: #99a; }
+.tabla tr.nuevo { animation: resaltar 2.5s ease-out; }
+@keyframes resaltar { from { background: #fff3b0; } to { background: transparent; } }
+.tabla a.codigo { color: var(--primary-d); cursor: pointer; text-decoration: none; font-family: ui-monospace, monospace; }
+.tabla a.codigo:hover { text-decoration: underline; }
+.tabla input.corr { width: 90px; text-align: right; padding: 3px 6px; border-radius: 5px; }
+.tabla input.corr.con-valor { background: #fff8d6; border-color: #e6c84d; font-weight: 700; }
+.tabla input.corr.guardando { opacity: .5; }
+.tabla .acc { display: flex; gap: 4px; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.kpi { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; }
+.kpi span { display: block; font-size: 12px; color: var(--muted); }
+.kpi b { font-size: 19px; font-variant-numeric: tabular-nums; }
+.kpi small { color: var(--muted); }
+
+.paginacion { display: flex; gap: 6px; align-items: center; justify-content: flex-end; margin-top: 8px; }
+.rejilla-rep { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.rep { display: flex; flex-direction: column; gap: 8px; }
+.rep h3 { margin: 0; font-size: 15px; }
+.rep p { margin: 0; flex: 1; }
+.resultado { margin-top: 12px; padding: 10px; border-radius: 8px; background: var(--ok-bg); }
+.resultado.error { background: var(--bad-bg); }
+.resultado ul { margin: 6px 0 0; padding-left: 18px; max-height: 200px; overflow: auto; font-size: 12px; }
+.detalle-bit { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); white-space: normal !important; max-width: 520px; word-break: break-word; }
