@@ -1,23 +1,25 @@
 {
   "name": "inventario-conteo",
   "version": "1.0.0",
-  "description": "Captura, revisión y validación de inventarios físicos",
-  "main": "server.js",
+  "description": "Captura, revisión y validación de inventarios (Firebase)",
   "scripts": {
-    "start": "node --no-warnings server.js",
-    "dev": "node --no-warnings --watch server.js"
+    "build": "esbuild build/firebase-entry.js --bundle --format=esm --minify --outfile=public/vendor/firebase.js",
+    "emuladores": "npm run build && firebase emulators:start --project demo-inventario",
+    "deploy": "npm run build && firebase deploy"
   },
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "express": "^5.3.0",
+    "firebase": "^12.19.0",
     "html5-qrcode": "^2.3.8",
-    "multer": "^2.5.0",
-    "selfsigned": "^2.4.1",
     "xlsx": "^0.18.5"
   },
   "engines": {
-    "node": ">=22.13"
+    "node": ">=20"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "firebase-tools": "^15.34.2"
+  }
 }

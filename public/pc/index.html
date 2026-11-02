@@ -8,6 +8,21 @@
   <link rel="stylesheet" href="/pc/pc.css">
 </head>
 <body>
+  <section id="v-cargando" class="login"><p class="muted">Cargando…</p></section>
+
+  <section id="v-setup" class="login oculto">
+    <h1>Configuración inicial</h1>
+    <p class="muted">Cree la cuenta de administrador del sistema. Esto se hace una sola vez.</p>
+    <form id="f-setup">
+      <label>Nombre de la empresa</label><input name="empresa" required>
+      <label>Su nombre</label><input name="nombre" required>
+      <label>Usuario (para entrar)</label><input name="usuario" autocapitalize="none" autocomplete="username" required pattern="[A-Za-z0-9._\-]{2,40}">
+      <label>Contraseña (mínimo 6 caracteres)</label><input name="password" type="password" minlength="6" autocomplete="new-password" required>
+      <button class="primario" type="submit">Crear y entrar</button>
+      <div class="error" id="setup-error"></div>
+    </form>
+  </section>
+
   <section id="v-login" class="login oculto">
     <h1>Panel de inventarios</h1>
     <p class="muted">Acceso para auditores y administradores</p>
@@ -78,7 +93,7 @@
         <select id="c-usuario"><option value="">Todos los contadores</option></select>
         <select id="c-dispositivo"><option value="">Todos los dispositivos</option></select>
         <label class="check"><input type="checkbox" id="c-eliminados"> Ver eliminados</label>
-        <label class="check"><input type="checkbox" id="c-auto" checked> Actualizar automáticamente</label>
+        <span class="etiqueta e-ok">● en vivo</span>
         <span class="espacio"></span>
         <span class="muted" id="c-resumen"></span>
         <button id="c-agregar" class="primario">+ Agregar conteo</button>
@@ -111,9 +126,8 @@
         </select>
         <select id="r-categoria"><option value="">Todas las categorías</option></select>
         <button id="r-limpiar">Limpiar filtros</button>
-        <label class="check"><input type="checkbox" id="r-auto"> Actualizar cada 15 s</label>
+        <span class="etiqueta e-ok">● en vivo</span>
         <span class="espacio"></span>
-        <button id="r-refrescar">↻ Actualizar</button>
         <button id="r-ticket" class="primario">🖨 Ticket 80mm (vista actual)</button>
         <button id="r-excel">Excel</button>
       </div>
@@ -161,8 +175,8 @@
         </div>
         <div class="tarjeta">
           <div class="fila"><h2>Dispositivos conectados</h2><span class="espacio"></span><button id="b-disp-ref" class="chico">↻</button></div>
-          <p class="muted">Sesiones con actividad en los últimos 2 días.</p>
-          <table class="tabla"><thead><tr><th>Dispositivo</th><th>Usuario</th><th>Tipo</th><th>IP</th><th>Última actividad</th><th class="n">Conteos</th><th></th></tr></thead><tbody id="d-lista"></tbody></table>
+          <p class="muted">Cada dispositivo reporta actividad cada minuto mientras la app está abierta.</p>
+          <table class="tabla"><thead><tr><th>Dispositivo</th><th>Usuario</th><th>Tipo</th><th>Última actividad</th><th></th></tr></thead><tbody id="d-lista"></tbody></table>
         </div>
       </div>
     </main>
@@ -174,8 +188,9 @@
     </main>
   </section>
 
-  <script src="/js/api.js"></script>
+  <script src="/vendor/xlsx.full.min.js"></script>
+  <script src="/js/util.js"></script>
   <script src="/pc/reportes.js"></script>
-  <script src="/pc/pc.js"></script>
+  <script type="module" src="/pc/pc.js"></script>
 </body>
 </html>

@@ -1,0 +1,95 @@
+rules_version = '2';
+
+// Reglas de seguridad del sistema de inventarios.
+// Roles (en /usuarios/{uid}.rol): contador < auditor < admin
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function ruta(p) { return /databases/$(database)/documents/$(p); }
+    function autenticado() { return request.auth != null; }
+    function perfil() { return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data; }
+    function activo() {
+      return autenticado()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && perfil().activo == true;
+    }
+    function esAuditor() { return activo() && perfil().rol in ['auditor', 'admin']; }
+    function esAdmin() { return activo() && perfil().rol == 'admin'; }
+    function sistemaIniciado() { return exists(/databases/$(database)/documents/config/sistema); }
+    function abierto(inv) { return get(/databases/$(database)/documents/inventarios/$(inv)).data.estado == 'abierto'; }
+    function cantidadValida(d) { return d.cantidad is number && d.cantidad >= 0 && d.cantidad <= 1000000000; }
+
+    // ---- Configuración general ----
+    match /config/sistema {
+      // lectura pública: sólo indica si el sistema ya se configuró, el nombre de la empresa y el inventario activo
+      allow read: if true;
+      // primera configuración: el primer usuario se crea a sí mismo como admin en el mismo lote
+      allow create: if autenticado() && !sistemaIniciado()
+        && getAfter(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin';
+      allow update: if esAdmin()
+        || (esAuditor() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['inventario_activo']));
+      allow delete: if false;
+    }
+
+    // ---- Usuarios ----
+    match /usuarios/{uid} {
+      allow read: if activo() || (autenticado() && request.auth.uid == uid);
+      allow create: if esAdmin()
+        || (autenticado() && request.auth.uid == uid && !sistemaIniciado()
+            && request.resource.data.rol == 'admin' && request.resource.data.activo == true
+            && existsAfter(/databases/$(database)/documents/config/sistema));
+      allow update: if esAdmin();
+      allow delete: if false;
+    }
+
+    // ---- Dispositivos conectados (latido de cada sesión) ----
+    match /dispositivos/{id} {
+      allow read: if esAuditor();
+      allow create, update: if activo() && request.resource.data.usuario_id == request.auth.uid;
+      allow delete: if esAuditor();
+    }
+
+    // ---- Inventarios ----
+    match /inventarios/{inv} {
+      allow read: if activo();
+      allow create, update: if esAuditor();
+      allow delete: if esAdmin();
+
+      // Stock teórico guardado en partes (cada documento contiene hasta ~1500 artículos)
+      match /catalogo/{parte} {
+        allow read: if activo();
+        allow write: if esAuditor();
+      }
+
+      match /conteos/{id} {
+        allow read: if esAuditor() || (activo() && resource.data.usuario_id == request.auth.uid);
+        allow create: if activo() && abierto(inv)
+          && cantidadValida(request.resource.data)
+          && request.resource.data.codigo is string && request.resource.data.codigo.size() > 0
+          && request.resource.data.eliminado == false
+          && (request.resource.data.usuario_id == request.auth.uid || esAuditor());
+        // el contador sólo puede cambiar la cantidad de sus propios conteos; el auditor, cualquier campo
+        allow update: if abierto(inv) && cantidadValida(request.resource.data) && (
+          esAuditor()
+          || (activo() && resource.data.usuario_id == request.auth.uid && resource.data.eliminado == false
+              && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['cantidad', 'modificado', 'modificado_por', 'modificado_por_nombre'])));
+        // se elimina lógicamente (eliminado = true) para conservar el historial;
+        // el borrado físico sólo ocurre cuando el administrador elimina el inventario completo
+        allow delete: if esAdmin();
+      }
+
+      match /correcciones/{codigo} {
+        allow read: if esAuditor();
+        allow write: if esAuditor() && abierto(inv);
+      }
+
+      match /bitacora/{id} {
+        allow read: if esAuditor();
+        allow create: if activo() && request.resource.data.usuario_id == request.auth.uid;
+        allow update: if false;
+        allow delete: if esAdmin();
+      }
+    }
+  }
+}

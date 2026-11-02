@@ -1,62 +1,72 @@
-# Sistema de captura, revisión y validación de inventarios
+# Sistema de captura, revisión y validación de inventarios (Firebase)
 
-Aplicación web para red local: los **celulares** cuentan (escaneo con cámara o captura manual) y la **PC** carga el stock teórico, revisa, corrige e imprime.
+Aplicación web alojada en **Firebase Hosting**, con datos en **Firestore** y usuarios en **Firebase Authentication**. No necesita servidor propio.
 
-## Requisitos e instalación
+- **Celulares** (`https://<proyecto>.web.app/m`): cuentan escaneando con la cámara o tecleando el SKU.
+- **PC** (`https://<proyecto>.web.app/pc`): carga del stock teórico, concentrado en vivo, revisión, correcciones, reportes y usuarios.
 
-- Node.js **22.13 o superior** (usa la base de datos SQLite integrada en Node, sin instalar nada más).
-- PC y celulares en la misma red Wi‑Fi.
+## Primer uso
+
+1. Abra `/pc`. La primera vez aparece **Configuración inicial**: escriba el nombre de la empresa y cree la cuenta de administrador.
+2. En **Usuarios y dispositivos**, cree a los contadores (usuario + contraseña de al menos 6 caracteres).
+3. En **Inventarios y stock**, cargue el archivo (.xlsx/.xls/.csv) con `CODIGO, DESCRIPCION, PRECIO VTA, COSTO, CANTIDAD`. Opcionales: `CATEGORIA`, `UBICACION`, `CODIGO BARRAS` (códigos alternos separados por coma).
+4. Los contadores abren `/m` en el celular, entran con su usuario y le ponen nombre al dispositivo.
+
+## Roles
+
+| Rol | Puede |
+|---|---|
+| Contador | Capturar desde el celular y editar **sus propios** conteos |
+| Auditor | Panel de PC: stock, editar/eliminar/agregar cualquier conteo, correcciones, reportes |
+| Administrador | Todo lo anterior + usuarios, nombre de la empresa, eliminar inventarios |
+
+Los permisos se hacen cumplir en el servidor con las reglas de `firestore.rules`, no solo en la pantalla.
+
+## Funcionamiento
+
+- **Celular:** el catálogo se descarga una vez al entrar, así que la búsqueda es instantánea y funciona sin conexión. Si se cae el internet, los conteos se guardan en el celular y Firestore los envía al reconectar. Se muestra "N sin enviar" mientras haya pendientes. Hay *modo rápido* (cada lectura = 1 pieza) y búsqueda por descripción. Los lectores de código Bluetooth funcionan como teclado en el campo de código.
+- **Conteos y Revisión** se actualizan **en vivo**, sin recargar.
+- **Cantidad final** = Corrección si existe; si no, la suma de los conteos. **Diferencia** = Final − Teórico.
+- **Reportes:** diferencias (ticket 80 mm), hoja de reconteo a ciegas (80 mm), ajuste de inventario (carta y 80 mm), sin contar y resumen por categoría. Exportación a Excel: revisión, archivo de ajuste e historial de conteos.
+- **Bitácora:** ediciones, eliminaciones, correcciones, cargas de stock y cambios de inventario.
+
+**Limitación:** desde la app no se puede cambiar la contraseña de *otro* usuario. Si alguien la olvida, desactívelo y créele un usuario nuevo, o restablézcala en la consola de Firebase (Authentication). Cada quien puede cambiar la suya con el botón "Contraseña".
+
+## Desarrollo local (emuladores)
+
+Requiere Node 20+ y Java 11+.
 
 ```bash
 npm install
 ```
 
 ```bash
-npm start
+npm run emuladores
 ```
 
-En la consola aparecen las direcciones:
+Abra `http://localhost:5000/pc`. Los datos de los emuladores se borran al detenerlos.
 
-```
-PC (revisión):     http://localhost:3000/pc
-Celulares:         https://192.168.1.50:3443/m
-```
+## Publicar en Firebase
 
-- **Usuario inicial:** `admin` / `admin` (el sistema pide cambiar la contraseña).
-- **Celulares:** abra la dirección `https://…:3443/m`. La primera vez el navegador avisa que el certificado no es de confianza → "Avanzado" → "Continuar". Hace falta HTTPS para que el navegador permita usar la cámara.
-- Los datos se guardan en `data/inventario.db` (respalde esa carpeta). Puertos configurables con las variables de entorno `PORT`, `HTTPS_PORT` y `DATA_DIR`.
+Necesita una llave de cuenta de servicio con rol *Firebase Admin* (Consola de Firebase → Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada).
 
-## Roles
-
-| Rol | Puede |
-|---|---|
-| Contador | Entrar desde el celular, capturar conteos y editar **sus propios** conteos |
-| Auditor | Todo lo anterior + panel de PC: cargar stock, editar/eliminar/agregar cualquier conteo, correcciones, reportes |
-| Administrador | Todo lo anterior + usuarios, nombre de la empresa, eliminar inventarios |
-
-## Flujo de trabajo
-
-1. **Inventarios y stock** (PC): cree un inventario, márquelo como *activo* y cargue el archivo (.xlsx/.xls/.csv) con `CODIGO, DESCRIPCION, PRECIO VTA, COSTO, CANTIDAD`. Columnas opcionales: `CATEGORIA`, `UBICACION`, `CODIGO BARRAS` (códigos alternos, separados por coma, para cuando el código de barras no es igual al SKU). Hay una plantilla para descargar.
-2. **Conteo** (celular): cada contador entra con su usuario y pone un nombre al dispositivo. Al escanear o teclear el código se muestra la descripción y el teclado numérico. Opciones: *modo rápido* (cada lectura = 1 pieza), búsqueda por descripción, lectores de código de barras Bluetooth o integrados (funcionan como teclado en el campo de código). Si se pierde el Wi‑Fi, los conteos se guardan en el celular y se envían solos cuando vuelve la conexión.
-3. **Conteos** (PC): concentrado en tiempo real con contador, dispositivo y fecha/hora; el auditor puede editar, eliminar (queda registrado y se puede ver) y agregar conteos.
-4. **Revisión** (PC): suma todos los conteos por artículo y los compara con el stock teórico. Muestra la diferencia en piezas, a costo y a precio de venta. Tiene filtros generales y por columna (`>0`, `<0`, `!=0`, `10..20`), orden por cualquier columna (Shift+clic para ordenar por varias) y la columna **Corrección**, donde se escribe la cantidad correcta y se pasa a la siguiente fila con Enter. Clic en un código para ver todos sus conteos.
-5. **Reportes**: diferencias (ticket 80 mm), hoja de reconteo a ciegas (80 mm), ajuste de inventario (carta y 80 mm), artículos sin contar y resumen ejecutivo por categoría. Exportaciones a Excel: revisión, archivo de ajuste e historial de conteos.
-6. Cierre el inventario cuando termine; ya no acepta cambios (se puede reabrir).
-
-**Cantidad final** = Corrección si existe; si no, la suma de los conteos. **Diferencia** = Final − Teórico.
-
-Toda alta, edición, eliminación, corrección o carga queda registrada en la **Bitácora**.
-
-## Estructura (para futuras ampliaciones)
-
-```
-server.js                 arranque HTTP/HTTPS y registro de módulos de API
-src/db.js                 SQLite + migraciones versionadas (agregue nuevas al final de MIGRACIONES)
-src/auth.js               sesiones por token y roles
-src/routes/*.js           un archivo por módulo (sistema, inventarios, conteos, revision)
-public/m/                 app del celular
-public/pc/pc.js           panel de PC
-public/pc/reportes.js     registro de reportes: Reportes.registrar({ id, titulo, formato, filtrar, generar })
+```bash
+GOOGLE_APPLICATION_CREDENTIALS=/ruta/llave.json ./scripts/desplegar.sh <ID-del-proyecto>
 ```
 
-Ya está previsto en el modelo de datos: `categoria`, `ubicacion` y `extra` (columnas no reconocidas del archivo, en JSON) en productos; `ubicacion` en conteos; múltiples inventarios con historial. Así se pueden agregar conteos por ubicación, análisis por categoría, segundo conteo/reconteo dirigido, etc., sin rehacer lo existente.
+El script crea la app web y la base de datos si no existen, activa el inicio de sesión con correo/contraseña y publica el sitio y las reglas. Para actualizaciones posteriores basta con `npm run deploy` (estando autenticado con `firebase login`).
+
+## Estructura
+
+```
+firebase.json, firestore.rules      configuración de Hosting y reglas de seguridad
+build/firebase-entry.js             partes del SDK de Firebase que se empaquetan en public/vendor/firebase.js
+public/js/datos.js                  capa de datos: modelo de Firestore y todas las operaciones
+public/js/revision.js               totalización y comparación contra el teórico
+public/js/stock.js                  lectura del archivo de stock y exportación a Excel
+public/m/                           app del celular
+public/pc/pc.js                     panel de PC
+public/pc/reportes.js               registro de reportes: Reportes.registrar({ id, titulo, formato, filtrar, generar })
+```
+
+Para crecer: los productos ya guardan `categoria`, `ubicacion` y `extra` (columnas no reconocidas del archivo); los conteos tienen campo `ubicacion`; hay múltiples inventarios con historial. Un reporte nuevo se agrega con una llamada a `Reportes.registrar`.

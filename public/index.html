@@ -18,16 +18,7 @@
     <a class="tarjeta" href="/pc/"><strong>🖥️ Panel de revisión (PC)</strong><span class="muted">Stock teórico, concentrado, revisión y reportes</span></a>
   </div>
   <script>
-    // En celular, la cámara requiere HTTPS: redirige al puerto seguro
-    const m = document.getElementById('lnk-m');
-    (async () => {
-      if (location.protocol === 'http:' && !['localhost', '127.0.0.1'].includes(location.hostname)) {
-        let puerto = 3443;
-        try { puerto = (await (await fetch('/info.json')).json()).https_port; } catch { /* usa el predeterminado */ }
-        m.href = `https://${location.hostname}:${puerto}/m/`;
-      }
-      if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) && location.search !== '?menu') location.replace(m.href);
-    })();
+    if (/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) && location.search !== '?menu') location.replace('/m/');
   </script>
 </body>
 </html>
