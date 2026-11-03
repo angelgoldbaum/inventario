@@ -2,6 +2,7 @@
 # Publica la app en Firebase usando una cuenta de servicio.
 #   Uso:  FIREBASE_SERVICE_ACCOUNT='<json>' ./scripts/desplegar.sh <ID-del-proyecto>
 #   (o GOOGLE_APPLICATION_CREDENTIALS=/ruta/llave.json)
+#   Sin llave: usa la sesión de "npx firebase login" en su computadora.
 # Opcional: UBICACION=nam5 (región de Firestore, sólo se usa la primera vez)
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -11,10 +12,13 @@ UBICACION="${UBICACION:-nam5}"
 FB="npx --no-install firebase"
 
 if [[ -z "${GOOGLE_APPLICATION_CREDENTIALS:-}" ]]; then
-  [[ -n "${FIREBASE_SERVICE_ACCOUNT:-}" ]] || { echo "Falta FIREBASE_SERVICE_ACCOUNT o GOOGLE_APPLICATION_CREDENTIALS"; exit 1; }
+  if [[ -n "${FIREBASE_SERVICE_ACCOUNT:-}" ]]; then
   LLAVE="$(mktemp)"; chmod 600 "$LLAVE"; trap 'rm -f "$LLAVE"' EXIT
   printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$LLAVE"
   export GOOGLE_APPLICATION_CREDENTIALS="$LLAVE"
+  else
+    echo "(sin llave: se usa la sesión de firebase login)"
+  fi
 fi
 
 echo "== Compilando"
